@@ -49,4 +49,4 @@ function RootLayoutNav() {
       </Stack>
     </ThemeProvider>
   );
-}
+};

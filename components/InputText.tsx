@@ -1,9 +1,9 @@
-import { type TextProps, StyleSheet, TextInput } from 'react-native';
+import { StyleSheet, TextInput, TextInputProps } from 'react-native';
 
 import { ThemedView } from './ThemedView';
 import { ThemedText } from './ThemedText';
 
-export type InputTextProps = TextProps & {
+export type InputTextProps = TextInputProps & {
   lightColor?: string;
   darkColor?: string;
   label?: string;
@@ -14,7 +14,6 @@ export type InputTextProps = TextProps & {
 };
 
 export function InputText({
-  style,
   label = 'text',
   passwordInput = false,
   top = 0,
@@ -22,7 +21,7 @@ export function InputText({
   bold = false,
   lightColor,
   darkColor,
-  ...rest
+  ...inputProps
 }: InputTextProps) {
 
   return (
@@ -34,18 +33,18 @@ export function InputText({
             placeholder={placeholder === "text" ? '********': placeholder}
             style={[
                 styles.textInputStyle, 
-                style
+                inputProps.style
             ]} 
-            {...rest}
+            {...inputProps}
         />}
         {!passwordInput && 
         <TextInput 
             placeholder={placeholder}
             style={[
                 styles.textInputStyle, 
-                style
+                inputProps.style
             ]} 
-            {...rest}
+            {...inputProps}
         />}
     </ThemedView>
   );

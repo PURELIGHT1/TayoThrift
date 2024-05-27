@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
@@ -7,8 +7,46 @@ import { HEIGHT, WIDTH } from '@/assets/styles';
 import { InputText } from '@/components/InputText';
 import { Button } from '@/components/Button';
 import IMAGES from '@/assets/images';
+import { LoginAsyncStorage, getLoginAsyncStorage, setLoginAsyncStorage } from '@/hooks/hooksAsyncStorage';
 
 export default function SingInScreen() {
+  const [dataLogin, setDataLogin] = useState<LoginAsyncStorage>({
+    email: '',
+    password: '',
+    name: '',
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const loginData = await getLoginAsyncStorage();
+      if (loginData) {
+        setDataLogin(loginData);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const onSubmit = async () => {
+    console.log(dataLogin);
+    if (dataLogin.email !== 'cherlytiara@gmail.com') {
+      alert('Username salah!');
+    } else {
+      if (dataLogin.password !== '12345') {
+        alert('Password salah!');
+      } else {
+        dataLogin.name = 'Cherly Tiara';
+        setLoginAsyncStorage(dataLogin);
+        setDataLogin({
+          email: '',
+          password: '',
+          name: '',
+        });
+        alert('Login berhasil!');
+      }
+    }
+  };
+
   return (
     <>
     <Stack.Screen options={{
@@ -22,9 +60,26 @@ export default function SingInScreen() {
               <ThemedText style={styles.textStyle}>sign in and start shopping </ThemedText>
             </ThemedView>
             <ThemedView style={styles.formContainer}>
-              <InputText label='Email' placeholder='cherlytiara@gmail.com' top={25} bold={true} />
-              <InputText label='Password' passwordInput={true} top={10} bold={true}/>
-              <Button link='(tabs)' label='Login Account' style={styles.buttonStyle} color='white' bold={true} />
+              <InputText 
+                label='Email' 
+                placeholder='cherlytiara@gmail.com' 
+                top={25} 
+                bold={true} 
+                value={dataLogin.email}
+                onChangeText={(text) => setDataLogin((prevData) => ({ ...prevData, email: text }))}
+              />
+              <InputText
+                label="Password"
+                passwordInput={true}
+                top={10}
+                bold={true}
+                value={dataLogin.password}
+                onChangeText={(text) => setDataLogin((prevData) => ({ ...prevData, password: text }))} 
+              />
+              <TouchableOpacity onPress={onSubmit}>
+                <Button link="(tabs)" label="Login Account" style={styles.buttonStyle} color="white" bold={true} />
+              </TouchableOpacity>
+              {/* <Button link='(tabs)' label='Login Account' style={styles.buttonStyle} color='white' bold={true} /> */}
               <ThemedView style={styles.bottomTextFormContainer}>
                 <ThemedText style={styles.fromTextStyle}>Or continue with</ThemedText>
                 <ThemedView style={styles.auth2Container}>
@@ -84,7 +139,7 @@ const styles = StyleSheet.create({
     color: '#fff', 
     fontSize: 30,
     marginBottom: 20,
-    marginTop: 50
+    marginTop: 60
   },
   textStyle:{
     color: '#fff', 
