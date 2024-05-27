@@ -5,12 +5,12 @@ export const WIDTHSCREEN = Dimensions.get("screen").width;
 export const HEIGHT = Dimensions.get("window").height;
 // screen itu seluruh dari atas sampai bawah, kalo window itu seperti yang action itu ga masuk
 export const SHADOW = {
-    shadowColor: "#000000",
+    shadowColor: "black",
     shadowOffset: {
         width: 0,
         height: 3,
     },
-    shadowOpacity: 0.17,
-    shadowRadius: 3.05,
-    elevation: 4,
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
 };

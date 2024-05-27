@@ -7,14 +7,21 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+export const unstable_settings = {
+  initialRouteName: 'index',
+};
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
+  const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
+
+  useEffect(() => {
+    if (error) throw error;
+  }, [error]);
 
   useEffect(() => {
     if (loaded) {
@@ -25,15 +32,20 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
+  return <RootLayoutNav />;
+}
+function RootLayoutNav() {
+  const colorScheme = useColorScheme();
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack initialRouteName={
-        true ? 'landing-page' : '(tabs)'
-      }>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{
+          headerShown: false,
+        }} />
         <Stack.Screen name="+not-found" />
-        <Stack.Screen name="landing-page" />
+        <Stack.Screen name="index" />
+        <Stack.Screen name="login" />
       </Stack>
     </ThemeProvider>
   );

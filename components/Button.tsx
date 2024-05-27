@@ -1,9 +1,9 @@
-import { type TextProps, StyleSheet, TextInput } from 'react-native';
+import { type TextProps, StyleSheet } from 'react-native';
 
 import { ThemedView } from './ThemedView';
 import { ThemedText } from './ThemedText';
 import { Link } from 'expo-router';
-import { WIDTH } from '@/assets/styles';
+import { SHADOW, WIDTH } from '@/assets/styles';
 
 export type InputTextProps = TextProps & {
   lightColor?: string;
@@ -13,6 +13,8 @@ export type InputTextProps = TextProps & {
   label?: string;
   bottom?: boolean;
   color?: string;
+  rounded?: boolean;
+  shadow?: boolean;
 };
 
 export function Button({
@@ -23,6 +25,8 @@ export function Button({
   bold = false,
   lightColor,
   darkColor,
+  rounded = true,
+  shadow = false,
   bottom = false,
   ...rest
 }: InputTextProps) {
@@ -32,7 +36,7 @@ export function Button({
       styles.buttonContainer, 
       bottom ? styles.positionButton: null 
     ]}>
-        <ThemedView style={[styles.buttonStyle, style]}>
+        <ThemedView style={[styles.buttonStyle, rounded ? {borderRadius: 50}: null, style, shadow ? SHADOW : null]}>
             <Link href={link} >
                 <ThemedText type={bold ? 'defaultSemiBold': 'default'} style={{color: color}}>{label}</ThemedText>
             </Link>
@@ -53,7 +57,6 @@ const styles = StyleSheet.create({
     borderColor: '#D9D9D9',
     backgroundColor: '#D9D9D9',
     padding: 10,
-    borderRadius: 50,
     width: WIDTH - 100,
     alignItems: 'center',
   },

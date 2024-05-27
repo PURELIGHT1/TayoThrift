@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link, Stack } from 'expo-router';
-import { ImageBackground, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Stack } from 'expo-router';
+import { ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { HEIGHT, WIDTH } from '@/assets/styles';
@@ -24,7 +24,7 @@ export default function SingInScreen() {
             <ThemedView style={styles.formContainer}>
               <InputText label='Email' placeholder='cherlytiara@gmail.com' top={25} bold={true} />
               <InputText label='Password' passwordInput={true} top={10} bold={true}/>
-              <Button link='/' label='Login Account' style={styles.buttonStyle} color='white' bold={true} />
+              <Button link='(tabs)' label='Login Account' style={styles.buttonStyle} color='white' bold={true} />
               <ThemedView style={styles.bottomTextFormContainer}>
                 <ThemedText style={styles.fromTextStyle}>Or continue with</ThemedText>
                 <ThemedView style={styles.auth2Container}>

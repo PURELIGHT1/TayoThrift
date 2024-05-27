@@ -1,4 +1,4 @@
-import { Link, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { ImageBackground, StyleSheet } from 'react-native';
 import IMAGES from '@/assets/images';
 import { HEIGHT, WIDTH } from '@/assets/styles';
@@ -18,7 +18,7 @@ export default function LandingPageScreen() {
             <ThemedText style={styles.textStyle}>Old Treasure</ThemedText>
             <ThemedText style={[styles.textStyle,{fontStyle: 'italic'}]} type="defaultSemiBold">New Happiness</ThemedText>
           </ThemedView>
-          <Button label="Get Started" link="sign-in" bottom={true} />
+          <Button label="Get Started" link="login" bottom={true} />
         </ImageBackground>
       </ThemedView>
     </>
