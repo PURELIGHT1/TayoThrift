@@ -13,6 +13,7 @@ import { storage } from '@/firebaseconfig';
 import { Stack, router } from 'expo-router';
 import { LoginAsyncStorage, PostAsyncStorage, getLoginAsyncStorage, setLoginAsyncStorage } from '@/hooks/hooksAsyncStorage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Postingan } from '@/components/Postingan';
 
 const ProfileScreen :React.FC = () => {
   const [dataUser, setDataUser] = useState<LoginAsyncStorage | null>(null);
@@ -25,11 +26,28 @@ const ProfileScreen :React.FC = () => {
     gambar: ''
   });
 
+  const [listDataPosting, setListDataPosting] = useState<PostAsyncStorage[]>([]);
+
   useEffect(() => {
     const getLocal = async () => {
       try {
         const data = await getLoginAsyncStorage();
         setDataUser(data);
+
+        const dataPost =  onValue(ref(storage, 'postingan'), (snapshot) => {
+          if (snapshot.exists()) {
+            const dataInDatabase = snapshot.val();
+            const posts: PostAsyncStorage[] = [];
+            Object.keys(dataInDatabase).forEach((key) => {
+              const postingData = dataInDatabase[key];
+              if (postingData.user === data!.email) {
+                posts.push(postingData);
+              }
+            });
+            setListDataPosting(posts);
+          }
+        });
+        
       } catch (error) {
         console.log('Error saat mengambil data dari async storage:', error);
       }
@@ -94,6 +112,7 @@ const ProfileScreen :React.FC = () => {
     }
   };
   
+  console.log(listDataPosting);
   return (
     <>
     <Stack.Screen options={{
@@ -117,7 +136,7 @@ const ProfileScreen :React.FC = () => {
           </ThemedText>
         </ThemedView>
       </ThemedView>
-      <ThemedView>
+      <ThemedView style={{marginBottom: 10}}>
         <CollapsibleButton title="Edit Profile" style={styles.collapsibleButton}>
           <ThemedText>Page Edit Profile</ThemedText>
         </CollapsibleButton>
@@ -178,6 +197,7 @@ const ProfileScreen :React.FC = () => {
           />
         </TouchableOpacity>
       </ThemedView>
+      <Postingan dataURI={listDataPosting}/>
     </ScrollView>
     </>
   );
