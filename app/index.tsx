@@ -1,12 +1,22 @@
-import { Stack } from 'expo-router';
+import { Stack, useNavigation } from 'expo-router';
 import { ImageBackground, StyleSheet } from 'react-native';
 import IMAGES from '@/assets/images';
 import { HEIGHT, WIDTH } from '@/assets/styles';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Button } from '@/components/Button';
+import { useEffect } from 'react';
+
+type ParamList = {
+  login: undefined; 
+};
 
 export default function LandingPageScreen() {
+   const route = useNavigation();
+   const Login: keyof ParamList = 'login'; 
+  useEffect(() => {
+    // route.navigate(Login);
+  },[])
   return (
     <>
       <Stack.Screen options={{

@@ -1,4 +1,5 @@
-import { StyleSheet, TextInput, TextInputProps } from 'react-native';
+import { StyleSheet, TextInput, TextInputProps, TouchableOpacity } from 'react-native';
+import * as DocumentPicker from 'expo-document-picker';
 
 import { ThemedView } from './ThemedView';
 import { ThemedText } from './ThemedText';
@@ -23,11 +24,14 @@ export function InputText({
   darkColor,
   ...inputProps
 }: InputTextProps) {
-
+  // "expo-document-picker",
+  //     {
+  //       "iCloudContainerEnvironment": "Production"
+  //     }
   return (
     <ThemedView style={[styles.container, {marginTop: top}]}>
         <ThemedText style={{marginBottom: 15}} type={bold ? 'defaultSemiBold': 'default'}>{label}</ThemedText>
-        {passwordInput &&         
+        {passwordInput  &&    
         <TextInput 
             secureTextEntry={true}
             placeholder={placeholder === "text" ? '********': placeholder}
@@ -61,5 +65,13 @@ const styles = StyleSheet.create({
     padding: 11, 
     borderRadius: 10, 
     borderColor: '#D9D9D9'
-  }
+  },
+  fileInputStyle: {
+    backgroundColor: '#D9D9D9',
+    padding: 11,
+    borderRadius: 10,
+    borderColor: '#D9D9D9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
