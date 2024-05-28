@@ -9,7 +9,7 @@ export type InputTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
   bold?: boolean;
-  link?: string;
+  link: string | null;
   label?: string;
   bottom?: boolean;
   color?: string;
@@ -18,7 +18,7 @@ export type InputTextProps = TextProps & {
 };
 
 export function Button({
-  link = '',
+  link = null,
   label = "text",
   style,
   color = 'black',
@@ -30,16 +30,17 @@ export function Button({
   bottom = false,
   ...rest
 }: InputTextProps) {
-
   return (
     <ThemedView style={[
       styles.buttonContainer, 
       bottom ? styles.positionButton: null 
     ]}>
         <ThemedView style={[styles.buttonStyle, rounded ? {borderRadius: 50}: null, style, shadow ? SHADOW : null]}>
+            {link === null && <ThemedText type={bold ? 'defaultSemiBold': 'default'} style={{color: color}}>{label}</ThemedText>}
+            {link !== null &&
             <Link href={link} >
                 <ThemedText type={bold ? 'defaultSemiBold': 'default'} style={{color: color}}>{label}</ThemedText>
-            </Link>
+            </Link>}
         </ThemedView>
     </ThemedView>
   );

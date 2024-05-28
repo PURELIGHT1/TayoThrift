@@ -1,16 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type LoginAsyncStorage = {
-    email: string;
-    password: string;
-    name: string;
+  email: string;
+  password: string;
 };
 
 type PostAsyncStorage = {
-    nama: string;
-    barang: string;
-    caption: string;
-    gambar: string;
+  user: string;
+  barang: string;
+  caption: string;
+  gambar: string;
 };
 
 const getLoginAsyncStorage = async (): Promise<LoginAsyncStorage | null> => {
@@ -48,6 +47,8 @@ const setPostAsyncStorage = async (value: PostAsyncStorage) => {
         console.log(error);
     }
 };
+
+
 export { 
     getLoginAsyncStorage, 
     setLoginAsyncStorage,

@@ -12,6 +12,7 @@ export type InputTextProps = TextInputProps & {
   top?: number;
   passwordInput?: boolean;
   bold?: boolean;
+  horizontal? : boolean;
 };
 
 export function InputText({
@@ -22,14 +23,11 @@ export function InputText({
   bold = false,
   lightColor,
   darkColor,
+  horizontal = true,
   ...inputProps
 }: InputTextProps) {
-  // "expo-document-picker",
-  //     {
-  //       "iCloudContainerEnvironment": "Production"
-  //     }
   return (
-    <ThemedView style={[styles.container, {marginTop: top}]}>
+    <ThemedView style={[styles.container, {marginTop: top}, horizontal && {paddingHorizontal: 22}]}>
         <ThemedText style={{marginBottom: 15}} type={bold ? 'defaultSemiBold': 'default'}>{label}</ThemedText>
         {passwordInput  &&    
         <TextInput 
@@ -56,7 +54,6 @@ export function InputText({
 
 const styles = StyleSheet.create({
   container:{
-    paddingHorizontal: 22, 
     backgroundColor: 'Transparent',
     marginBottom: 20,
   },

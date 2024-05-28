@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Image, TouchableOpacity, PermissionsAndroid, Linking, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { CollapsibleButton } from '@/components/CollapsibleButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -8,12 +8,35 @@ import { Button } from '@/components/Button';
 import { WIDTH } from '@/assets/styles';
 import { InputText } from '@/components/InputText';
 import * as ImagePicker from 'expo-image-picker';
+import { ref, push, onValue } from 'firebase/database';
 import { storage } from '@/firebaseconfig';
-import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { Stack, router } from 'expo-router';
+import { LoginAsyncStorage, PostAsyncStorage, getLoginAsyncStorage, setLoginAsyncStorage } from '@/hooks/hooksAsyncStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen :React.FC = () => {
+  const [dataUser, setDataUser] = useState<LoginAsyncStorage | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState<boolean>(false);
+  const [dataPosting, setDataPosting] = useState<PostAsyncStorage>({
+    user: '',
+    barang: '',
+    caption: '',
+    gambar: ''
+  });
+
+  useEffect(() => {
+    const getLocal = async () => {
+      try {
+        const data = await getLoginAsyncStorage();
+        setDataUser(data);
+      } catch (error) {
+        console.log('Error saat mengambil data dari async storage:', error);
+      }
+    }
+
+    getLocal();
+  },[]);
 
   const selectFile = async () => {
     try {
@@ -34,46 +57,50 @@ const ProfileScreen :React.FC = () => {
         setSelectedImage(result.assets[0].uri);
       }
     } catch (err) {
-        console.log('Pemilihan dokumen dibatalkan', err);
+      console.log('Pemilihan dokumen dibatalkan', err);
+    }
+  };
+  
+  const uploadImage = async () => {
+    if(dataPosting.barang === ''){
+      alert('Barang tidak boleh kosong!');
+    } else {
+      if(dataPosting.caption === ''){
+        alert('Caption tidak boleh kosong!');
+      } else{
+        setDataPosting((prevData) => ({ ...prevData, nama: dataUser!.email }));
+        setDataPosting((prevData) => ({ ...prevData, gambar: selectedImage! }));
+        console.log(dataPosting);
+
+        const postingRef = ref(storage, 'postingan');
+        push(postingRef,{
+          user: dataUser!.email,
+          barang: dataPosting.barang,
+          caption:  dataPosting.caption,
+          gambar: selectedImage!,
+        });
+        alert('Berhasil melakukan posting!');
+      }
     }
   };
 
-  const uploadImage = async () => {
-    if (selectedImage === null) {
-      alert('Pilih gambar terlebih dahulu');
-      return;
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('user');
+      alert('Berhasil logout!');
+      router.push('/'); 
+    } catch (error) {
+      console.log(error);
     }
-
-    setUploading(true);
-    const response = await fetch(selectedImage);
-    const blob = await response.blob();
-    const fileName = `images/${Date.now()}_${selectedImage.split('/').pop()}`;
-
-    const storageRef = ref(storage, fileName);
-    const uploadTask = uploadBytesResumable(storageRef, blob);
-
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log('Upload progress:', progress, '%');
-      },
-      (error) => {
-        console.error(error);
-        alert('Upload gagal');
-        setUploading(false);
-      },
-      async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        console.log('File tersedia di', downloadURL);
-        alert(`Upload berhasil File tersedia di ${downloadURL}`);
-        setUploading(false);
-      })
-    
   };
   
   return (
-    <ScrollView style={styles.container}>
+    <>
+    <Stack.Screen options={{
+      headerShown: true,
+      title: 'Search' 
+    }} />
+    <ScrollView style={{backgroundColor: 'white'}}>
       <ThemedView style={styles.header}>
         <ThemedView style={styles.headerContent}>
           <Image source={IMAGES.profile} style={styles.profileImage} />
@@ -96,7 +123,23 @@ const ProfileScreen :React.FC = () => {
         </CollapsibleButton>
         <CollapsibleButton title="Post" style={styles.collapsibleButton}>
           <ThemedView style={styles.containerFile}>
-            <ThemedText style={{ marginBottom: 15 }} type="default">
+            <InputText 
+              label="Nama Barang" 
+              placeholder="Input this caption" 
+              bold={true} 
+              horizontal={false}
+              value={dataPosting.barang}
+              onChangeText={(text) => setDataPosting((prevData) => ({ ...prevData, barang: text }))} 
+            />
+            <InputText 
+              label="Caption" 
+              placeholder="Input this caption" 
+              bold={true} 
+              horizontal={false}
+              value={dataPosting.caption}
+              onChangeText={(text) => setDataPosting((prevData) => ({ ...prevData, caption: text }))} 
+            />
+            <ThemedText style={{ marginBottom: 15}} type="defaultSemiBold">
               Postingan
             </ThemedText>
             <TouchableOpacity 
@@ -107,49 +150,40 @@ const ProfileScreen :React.FC = () => {
                 Upload File From Galeri
               </ThemedText>
             </TouchableOpacity>
-            {/* {selectedFile && (
-              <Button
-                label="Upload File"
-                style={{ width: WIDTH }}
-                color="black"
-                bold
-                rounded={false}
-                shadow
-                // onPress={handleFileUpload}
-              />
-            )} */}
-            
             {selectedImage && <Image source={{ uri: selectedImage }} style={styles.image} />}
             {uploading ? (
               <ActivityIndicator size="large" color="#0000ff" />
             ) : (
               selectedImage && 
-              <Button label="Kirim" onPress={uploadImage} style={styles.buttonStyle} color='gray' />
-              // <Button link="(tabs)" label="Login Account" style={styles.buttonStyle} color="white" bold={true} />
-              
+              <TouchableOpacity 
+                style={[styles.fileInputStyle, {marginTop: 15, backgroundColor: 'blue'}]} 
+                onPress={() => uploadImage()}
+              >
+              <ThemedText style={{color: 'white'}}>Kirim Postingan</ThemedText>
+              </TouchableOpacity>
             )}
           </ThemedView>
-          <InputText label="Caption" placeholder="Input this caption" />
         </CollapsibleButton>
-        <Button
-          link="logout"
-          label="Log Out"
-          style={{ width: WIDTH }}
-          color="black"
-          bold
-          rounded={false}
-          shadow
-        />
+        <TouchableOpacity 
+          onPress={() => handleLogout()}
+        >
+          <Button
+            link={null}
+            label="Log Out"
+            style={{ width: WIDTH }}
+            color="black"
+            bold
+            rounded={false}
+            shadow
+          />
+        </TouchableOpacity>
       </ThemedView>
     </ScrollView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    marginTop: 50
-  },
   header: {
     padding: 16,
     flexDirection: 'row',
@@ -193,11 +227,12 @@ const styles = StyleSheet.create({
     height: 200,
     marginTop: 20,
   },
-  
   buttonStyle:{
     marginTop: 20, 
-    backgroundColor: '#000', 
-    color: '#fff'
+    backgroundColor: 'gray', 
+    color: 'black',
+    width: '80%',
+    
   },
 });
 

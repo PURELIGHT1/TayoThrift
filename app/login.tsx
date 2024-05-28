@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
@@ -7,42 +7,51 @@ import { HEIGHT, WIDTH } from '@/assets/styles';
 import { InputText } from '@/components/InputText';
 import { Button } from '@/components/Button';
 import IMAGES from '@/assets/images';
-import { LoginAsyncStorage, getLoginAsyncStorage, setLoginAsyncStorage } from '@/hooks/hooksAsyncStorage';
+import { LoginAsyncStorage, setLoginAsyncStorage } from '@/hooks/hooksAsyncStorage';
+import { ref, push, onValue } from 'firebase/database';
+import { storage } from '@/firebaseconfig';
 
 export default function SingInScreen() {
+  const router = useRouter();
   const [dataLogin, setDataLogin] = useState<LoginAsyncStorage>({
     email: '',
     password: '',
-    name: '',
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const loginData = await getLoginAsyncStorage();
-      if (loginData) {
-        setDataLogin(loginData);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const [dataLoginCreate, setDataLoginCreate] = useState<LoginAsyncStorage>({
+    email: '',
+    password: '',
+  });
 
   const onSubmit = async () => {
-    console.log(dataLogin);
-    if (dataLogin.email !== 'cherlytiara@gmail.com') {
-      alert('Username salah!');
+    if (dataLogin.email === '') {
+      alert('Username tidak boleh kosong!');
     } else {
-      if (dataLogin.password !== '12345') {
-        alert('Password salah!');
+      if (dataLogin.password === '') {
+        alert('Password tidak boleh kosong!!');
       } else {
-        dataLogin.name = 'Cherly Tiara';
-        setLoginAsyncStorage(dataLogin);
-        setDataLogin({
-          email: '',
-          password: '',
-          name: '',
+        let loggedIn = false; 
+        const checkLoginRef = ref(storage, 'login');
+        onValue(checkLoginRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const dataInDatabase = snapshot.val();
+            Object.keys(dataInDatabase).forEach((key) => {
+              const userData = dataInDatabase[key];
+              if (userData.email === dataLogin.email && userData.email === dataLogin.email) {
+                loggedIn = true; 
+                return;
+              }
+            });
+          }
         });
-        alert('Login berhasil!');
+
+        if(loggedIn){
+          setLoginAsyncStorage(dataLogin);
+          router.push('(tabs)');
+          alert('Login berhasil!');
+        }else{
+          alert('Username atau password salah!');
+        }
       }
     }
   };
@@ -77,9 +86,8 @@ export default function SingInScreen() {
                 onChangeText={(text) => setDataLogin((prevData) => ({ ...prevData, password: text }))} 
               />
               <TouchableOpacity onPress={onSubmit}>
-                <Button link="(tabs)" label="Login Account" style={styles.buttonStyle} color="white" bold={true} />
+                <Button link={null} label="Login Account" style={styles.buttonStyle} color="white" bold={true} />
               </TouchableOpacity>
-              {/* <Button link='(tabs)' label='Login Account' style={styles.buttonStyle} color='white' bold={true} /> */}
               <ThemedView style={styles.bottomTextFormContainer}>
                 <ThemedText style={styles.fromTextStyle}>Or continue with</ThemedText>
                 <ThemedView style={styles.auth2Container}>
